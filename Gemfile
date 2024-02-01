@@ -63,3 +63,7 @@ group :development do
   # Speed up commands on slow machines / big apps [https://github.com/rails/spring]
   # gem "spring"
 end
+
+gem 'inertia_rails'
+
+gem "vite_rails", "~> 3.0"
