@@ -1,17 +1,37 @@
-import React from "react";
-import { Button } from "../components/ui/button"
-import { DropdownMenuTrigger, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem, DropdownMenuContent, DropdownMenu } from "../components/ui/dropdown-menu"
-import { Link } from '@inertiajs/inertia-react';
-import AccountsTable from "./AccountTable";
-import AccountDialog from "./AccountDialog";
+import React, { useEffect } from "react";
+import { Button } from "../components/ui/button";
+import {
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenu,
+} from "../components/ui/dropdown-menu";
+import { Link } from "@inertiajs/inertia-react";
+import Accounts from "./Accounts";
+import Withdrawals from "./Withdrawals";
+import { useToast } from "../components/ui/use-toast";
+import { Toaster } from "../components/ui/toaster";
 
-const Dashboard = ({ name, accounts }) => {
+const Dashboard = ({ name, accounts, withdrawals, errors }) => {
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (errors && Object.keys(errors).length > 0) {
+      toast({
+        variant: "destructive",
+        title: Object.values(errors).join(", "),
+      });
+    }
+  }, [errors, toast]);
+
   return (
     <div className="grid h-screen w-full overflow-hidden lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-gray-100/40 lg:block dark:bg-gray-800/40">
         <div className="flex h-full max-h-screen flex-col gap-4">
           <div className="flex h-[60px] items-center border-b px-6">
-            <Link className="flex items-center gap-2 font-semibold" href="#">
+            <Link className="flex items-center gap-2 font-semibold" href="/">
               <HomeIcon className="h-6 w-6" />
               <span className="">{name}</span>
             </Link>
@@ -22,16 +42,26 @@ const Dashboard = ({ name, accounts }) => {
           </div>
           <div className="flex-1 overflow-auto py-2">
             <nav className="grid gap-1 px-2">
-              <Button asChild className="justify-start" size="sm" variant="ghost">
-                <Link className="gap-2" href="#">
+              <Button
+                asChild
+                className="justify-start"
+                size="sm"
+                variant="ghost"
+              >
+                <Link className="gap-2" href="/accounts">
                   <BanknoteIcon className="h-5 w-5" />
                   Bank Accounts
                 </Link>
               </Button>
-              <Button asChild className="justify-start" size="sm" variant="ghost">
-                <Link className="gap-2" href="#">
+              <Button
+                asChild
+                className="justify-start"
+                size="sm"
+                variant="ghost"
+              >
+                <Link className="gap-2" href="/withdrawals">
                   <LineChartIcon className="h-5 w-5" />
-                  Analytics
+                  Withdrawals
                 </Link>
               </Button>
             </nav>
@@ -76,17 +106,22 @@ const Dashboard = ({ name, accounts }) => {
             </DropdownMenu>
           </div>
         </header>
-        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-lg">Bank Accounts</h2>
-            <AccountDialog />
+        {/* if no accounts or withdrawals, show a message saying welcome to your dashboard, centered relative to the screen*/}
+        {!accounts && !withdrawals && (
+          <div className="flex-1 flex items-center justify-center">
+            {/* below this header, lets add a message so that the user visits the accounts or withdrawals buttons */}
+            <h2 className="text-lg font-semibold text-center">
+              Welcome to your dashboard!
+            </h2>
           </div>
-          <AccountsTable accounts={accounts} />
-        </main>
+        )}
+        {accounts && <Accounts accounts={accounts} />}
+        {withdrawals && <Withdrawals withdrawals={withdrawals} />}
       </div>
+      <Toaster />
     </div>
-  )
-}
+  );
+};
 
 function BellIcon(props) {
   return (
@@ -105,7 +140,7 @@ function BellIcon(props) {
       <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
       <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
     </svg>
-  )
+  );
 }
 
 function HomeIcon(props) {
@@ -125,7 +160,7 @@ function HomeIcon(props) {
       <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
       <polyline points="9 22 9 12 15 12 15 22" />
     </svg>
-  )
+  );
 }
 
 function LineChartIcon(props) {
@@ -145,28 +180,7 @@ function LineChartIcon(props) {
       <path d="M3 3v18h18" />
       <path d="m19 9-5 5-4-4-3 3" />
     </svg>
-  )
-}
-
-function Package2Icon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
-      <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9" />
-      <path d="M12 3v6" />
-    </svg>
-  )
+  );
 }
 
 function BanknoteIcon(props) {
@@ -187,7 +201,7 @@ function BanknoteIcon(props) {
       <circle cx="12" cy="12" r="2" />
       <path d="M6 12h.01M18 12h.01" />
     </svg>
-  )
+  );
 }
 
 export default Dashboard;
